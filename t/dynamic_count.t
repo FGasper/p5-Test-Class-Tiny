@@ -6,7 +6,10 @@ use Test2::V0;
 
 use parent qw( Test::Class::Tiny );
 
-__PACKAGE__->new()->runtests() if !caller;
+if (!caller) {
+    __PACKAGE__->new()->runtests();
+    done_testing;
+}
 
 sub runtests {
     my ($self) = @_;

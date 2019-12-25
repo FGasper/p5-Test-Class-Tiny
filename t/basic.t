@@ -8,7 +8,10 @@ use Test::Deep ();
 
 use parent qw( Test::Class::Tiny );
 
-__PACKAGE__->new()->runtests() if !caller;
+if (!caller) {
+    __PACKAGE__->runtests();
+    done_testing;
+}
 
 sub T1_test_ok {
     ok(1, "pass");

@@ -37,6 +37,12 @@ Test::Class::Tiny - xUnit in Perl, simplified
         # Runs at the end of the test run.
     }
 
+# STATUS
+
+This module is **EXPERIMENTAL**. If you use it, you MUST check the changelog
+before upgrading to a new version. Any CPAN distributions that use this module
+could break whenever this module is updated.
+
 # DESCRIPTION
 
 [Test::Class](https://metacpan.org/pod/Test::Class) has served Perl’s xUnit needs for a long time
@@ -46,8 +52,10 @@ a similar workflow but in a way that works with both [Test2](https://metacpan.or
 
 # HOW (AND WHY) TO USE THIS MODULE
 
-xUnit encourages well-designed tests by encouraging creation of independent
-chunks of test logic rather than a single monolithic block of code.
+xUnit encourages well-designed tests by encouraging organization of test
+logic into independent chunks of test logic rather than a single monolithic
+block of code.
+
 xUnit provides standard hooks for:
 
 - startup: The start of all tests
@@ -59,8 +67,8 @@ To write functions that execute at these points in the workflow,
 name those functions with the prefixes `T_startup_`, `T_setup_`,
 `T_teardown_`, or `T_shutdown_`.
 
-To write a test function—i.e., a function that actually run some
-tests—prefix the function name with `T`, the number of test assertions
+To write a test function—i.e., a function that actually runs some
+assertions—prefix the function name with `T`, the number of test assertions
 in the function, then an underscore. For example, a function that contains
 9 assertions might be named `T9_check_validation()`. If that function
 doesn’t run exactly 9 assertions, a test failure is produced.
@@ -74,6 +82,12 @@ Using method names is dramatically simpler to implement and also easier
 to type.
 
 In most other respects this module attempts to imitate [Test::Class](https://metacpan.org/pod/Test::Class).
+
+## Plans
+
+[Test::Class](https://metacpan.org/pod/Test::Class) does a bit of “magic” that relieves you of the need to
+give an overall test plan. For the time being, Test::Class::Tiny offers
+no such convenience.
 
 # TEST INHERITANCE
 

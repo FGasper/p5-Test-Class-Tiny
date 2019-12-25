@@ -2,9 +2,14 @@
 
 package t::inheritance;
 
+use Test2::V0;
+
 use parent -norequire => ('t::Foo', 't::Bar');
 
-__PACKAGE__->new()->runtests() if !caller;
+if (!caller) {
+    __PACKAGE__->runtests();
+    done_testing();
+}
 
 #----------------------------------------------------------------------
 

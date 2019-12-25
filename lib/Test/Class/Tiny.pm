@@ -47,6 +47,12 @@ Test::Class::Tiny - xUnit in Perl, simplified
         # Runs at the end of the test run.
     }
 
+=head1 STATUS
+
+This module is B<EXPERIMENTAL>. If you use it, you MUST check the changelog
+before upgrading to a new version. Any CPAN distributions that use this module
+could break whenever this module is updated.
+
 =head1 DESCRIPTION
 
 L<Test::Class> has served Perl’s xUnit needs for a long time
@@ -56,8 +62,10 @@ L<Test::Builder>-based modules.
 
 =head1 HOW (AND WHY) TO USE THIS MODULE
 
-xUnit encourages well-designed tests by encouraging creation of independent
-chunks of test logic rather than a single monolithic block of code.
+xUnit encourages well-designed tests by encouraging organization of test
+logic into independent chunks of test logic rather than a single monolithic
+block of code.
+
 xUnit provides standard hooks for:
 
 =over
@@ -76,8 +84,8 @@ To write functions that execute at these points in the workflow,
 name those functions with the prefixes C<T_startup_>, C<T_setup_>,
 C<T_teardown_>, or C<T_shutdown_>.
 
-To write a test function—i.e., a function that actually run some
-tests—prefix the function name with C<T>, the number of test assertions
+To write a test function—i.e., a function that actually runs some
+assertions—prefix the function name with C<T>, the number of test assertions
 in the function, then an underscore. For example, a function that contains
 9 assertions might be named C<T9_check_validation()>. If that function
 doesn’t run exactly 9 assertions, a test failure is produced.
@@ -91,6 +99,12 @@ Using method names is dramatically simpler to implement and also easier
 to type.
 
 In most other respects this module attempts to imitate L<Test::Class>.
+
+=head2 Plans
+
+L<Test::Class> does a bit of “magic” that relieves you of the need to
+give an overall test plan. For the time being, Test::Class::Tiny offers
+no such convenience.
 
 =head1 TEST INHERITANCE
 
@@ -187,6 +201,7 @@ sub num_tests {
 sub num_method_tests {
     my ($self, $name, $count) = @_;
 
+use Carp::Always;
     die 'need name!' if !$name;
 
     if (@_ == 2) {
@@ -202,6 +217,10 @@ sub num_method_tests {
 sub runtests {
     my ($self) = @_;
 
+    if (!ref $self) {
+        $self = $self->new();
+    }
+
     local $self->{'_running'} = 1;
 
     # Allow calls as either instance or object method.
@@ -213,7 +232,6 @@ sub runtests {
     my $ctx = Test2::API::context();
 
     if (my $reason = $self->SKIP_CLASS()) {
-        my $ctx = Test2::API::context();
         $ctx->plan(1);
         $ctx->skip( ref($self), $reason );
     }
@@ -224,11 +242,33 @@ sub runtests {
             $self->_run_funcs($startup_hr);
         }
 
-        my $setup_hr = $self->{'setup'};
-        my $teardown_hr = $self->{'teardown'};
-
         if ( my $tests_hr = $self->{'test'} ) {
+            my $setup_hr = $self->{'setup'};
+            my $teardown_hr = $self->{'teardown'};
+
+            my $filter_fn;
+            my $got_count;
+
+            my $hub = $ctx->hub();
+
+            my $filter_cr = sub {
+                my ($hub, $event) = @_;
+
+                $got_count++ if $event->increments_count();
+
+                if ($event->can('name') && !defined $event->name()) {
+                    my $name = $tests_hr->{$filter_fn}{'simple_name'};
+                    $name =~ tr<_>< >;
+                    $event->set_name($name);
+                }
+
+                return $event;
+            };
+
+            $hub->filter($filter_cr);
+
             for my $fn (sort keys %$tests_hr) {
+                $filter_fn = $fn;
 
                 if (my $ptn = $ENV{'TEST_METHOD'}) {
                     next if $fn !~ m<$ptn>;
@@ -240,21 +280,7 @@ sub runtests {
 
                 $self->_run_funcs($setup_hr);
 
-                my $hub = $ctx->hub();
-
-                my $got_count = 0;
-
-                $hub->listen( sub {
-                    my ($hub, $event, $number) = @_;
-
-                    $got_count++ if $event->increments_count();
-
-                    if ($event->can('name') && !defined $event->name()) {
-                        my $name = $tests_hr->{$fn}{'simple_name'};
-                        $name =~ tr<_>< >;
-                        $event->set_name($name);
-                    }
-                } );
+                $got_count = 0;
 
                 my $want_count = $tests_hr->{$fn}{'count'};
 
@@ -274,14 +300,14 @@ sub runtests {
 
                 $self->_run_funcs($teardown_hr);
             }
+
+            $hub->unfilter($filter_cr);
         }
 
         if ( my $shutdown_hr = $self->{'shutdown'} ) {
             $self->_run_funcs($shutdown_hr);
         }
     }
-
-    $ctx->done_testing();
 
     $ctx->release();
 
