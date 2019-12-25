@@ -1,4 +1,8 @@
 .gitignore
+LICENSE
+MANIFEST
+Makefile.PL
+README.md
 lib/Test/Class/Tiny.pm
 t/basic.t
 t/dynamic_count.t
