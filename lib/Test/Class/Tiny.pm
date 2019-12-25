@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 our $VERSION;
-$VERSION = 0.01;
+$VERSION = '0.01_01';
 
 =encoding utf-8
 
