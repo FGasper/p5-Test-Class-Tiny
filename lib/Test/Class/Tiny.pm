@@ -51,7 +51,7 @@ but is incompatible with the L<Test2> framework. This module allows for
 a similar workflow but in a way that works with both L<Test2> and the older,
 L<Test::Builder>-based modules.
 
-=head1 HOW TO USE THIS MODULE
+=head1 HOW (AND WHY) TO USE THIS MODULE
 
 xUnit encourages well-designed tests by encouraging creation of independent
 chunks of test logic rather than a single monolithic block of code.
@@ -87,13 +87,15 @@ which uses Perl subroutine attributes to indicate this information.
 Using method names is dramatically simpler to implement and also easier
 to type.
 
+In most other respects this module attempts to imitate L<Test::Class>.
+
 =head1 TEST INHERITANCE
 
-This module, like Test::Class, seamlessly integrates inherited methods.
+Like L<Test::Class>, this module seamlessly integrates inherited methods.
 To have one test module inherit another module’s tests, just make that
 first module a subclass of the latter.
 
-B<CAVEAT EMPTOR:> Inheritance in tests can be useful; however, it can also
+B<CAVEAT EMPTOR:> Inheritance in tests, while occasionally useful, can also
 make for difficult maintenance over time if overused. Where I’ve found it
 most useful is cases like L<Promise::ES6>, where each test needs to run with
 each backend implementation.
@@ -104,7 +106,9 @@ To use this module to write normal Perl test scripts, just define
 the script’s package (ideally not C<main>, but it’ll work) as a subclass of
 this module. Then put the following somewhere in the script:
 
-    __PACKAGE__->new()->runtests() if !caller;
+    __PACKAGE__->runtests() if !caller;
+
+Your test will thus execute as a “modulino”.
 
 =head1 SPECIAL FEATURES
 
@@ -232,7 +236,7 @@ sub runtests {
 
                 $self->_run_funcs($setup_hr);
 
-                my $want_count = $tests_hr->{$fn};
+                my $want_count = $tests_hr->{$fn}{'count'};
 
                 local $self->{'_num_tests'} = $want_count;
 
@@ -246,7 +250,15 @@ sub runtests {
                     };
                 } );
 
-                $ctx->hub()->send($_) for @$events_ar;
+                for my $event (@$events_ar) {
+                    if ($event->can('name') && !defined $event->name()) {
+                        my $name = $tests_hr->{$fn}{'simple_name'};
+                        $name =~ tr<_>< >;
+                        $event->set_name($name);
+                    }
+
+                    $ctx->hub()->send($event);
+                }
 
                 $ctx->fail("$fn()", "Caught exception: $err") if $died_yn;
 
@@ -289,15 +301,19 @@ sub _analyze {
 
             for my $name (keys %$ptbl_hr) {
                 next if !$self->can($name);
-                next if $name !~ m<\AT(_setup|_teardown|_startup|_shutdown|[0-9]+)_>;
+                next if $name !~ m<\AT(_setup|_teardown|_startup|_shutdown|[0-9]+)_(.+)>;
 
                 my $whatsit = $1;
+                my $simple_name = $2;
 
                 if ( $whatsit =~ s<\A_><>) {
                     $self->{$whatsit}{$name} = undef;
                 }
                 else {
-                    $self->{'test'}{$name} = $whatsit;
+                    $self->{'test'}{$name} = {
+                        count => $whatsit,
+                        simple_name => $simple_name,
+                    };
                 }
             }
         }

@@ -1,0 +1,5 @@
+.gitignore
+lib/Test/Class/Tiny.pm
+t/basic.t
+t/dynamic_count.t
+t/inheritance.t
