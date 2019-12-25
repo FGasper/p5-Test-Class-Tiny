@@ -23,8 +23,13 @@ WriteMakefile1(
     ABSTRACT_FROM => 'lib/Test/Class/Tiny.pm',
     LICENSE      => 'perl',
 
+    PREREQ_PM => {
+        'Test2::API' => 0,
+    },
+
     TEST_REQUIRES => {
         'Test2::V0' => 0,
+        'Test::Deep' => 0,
         'parent'    => 0,
     },
 );
