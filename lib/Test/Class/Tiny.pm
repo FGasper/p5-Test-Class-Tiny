@@ -240,36 +240,33 @@ sub runtests {
 
                 $self->_run_funcs($setup_hr);
 
-                my $want_count = $tests_hr->{$fn}{'count'};
+                my $hub = $ctx->hub();
 
-                local $self->{'_num_tests'} = $want_count;
+                my $got_count = 0;
 
-                my ($died_yn, $err);
+                $hub->listen( sub {
+                    my ($hub, $event, $number) = @_;
 
-                my $events_ar = Test2::API::intercept( sub {
-                    eval { $self->$fn(); 1 } or do {
-                        $err = $@;
+                    $got_count++ if $event->increments_count();
 
-                        $died_yn = 1;
-                    };
-                } );
-
-                for my $event (@$events_ar) {
                     if ($event->can('name') && !defined $event->name()) {
                         my $name = $tests_hr->{$fn}{'simple_name'};
                         $name =~ tr<_>< >;
                         $event->set_name($name);
                     }
+                } );
 
-                    $ctx->hub()->send($event);
-                }
+                my $want_count = $tests_hr->{$fn}{'count'};
 
-                $ctx->fail("$fn()", "Caught exception: $err") if $died_yn;
+                local $self->{'_num_tests'} = $want_count;
+
+                local $@;
+                eval { $self->$fn(); 1 } or do {
+                    my $err = $@;
+                    $ctx->fail("$fn()", "Caught exception: $err");
+                };
 
                 if ($want_count) {
-                    my $got_count = 0;
-                    $got_count++ for grep { $_->increments_count() } @$events_ar;
-
                     if ($want_count != $got_count) {
                         $ctx->fail("Test count mismatch: got $got_count, expected $want_count");
                     }
