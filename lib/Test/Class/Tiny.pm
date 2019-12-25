@@ -201,7 +201,6 @@ sub num_tests {
 sub num_method_tests {
     my ($self, $name, $count) = @_;
 
-use Carp::Always;
     die 'need name!' if !$name;
 
     if (@_ == 2) {
