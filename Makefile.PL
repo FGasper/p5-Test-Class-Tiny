@@ -24,6 +24,7 @@ WriteMakefile1(
     LICENSE      => 'perl',
 
     TEST_REQUIRES => {
+        'Test2'     => 0,
         'parent'    => 0,
     },
 );

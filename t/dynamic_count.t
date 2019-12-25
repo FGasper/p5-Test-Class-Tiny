@@ -4,8 +4,6 @@ package t::dynamic_count;
 
 use Test2::V0;
 
-use Test::Deep ();
-
 use parent qw( Test::Class::Tiny );
 
 __PACKAGE__->new()->runtests() if !caller;
