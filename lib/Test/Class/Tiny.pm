@@ -193,7 +193,8 @@ sub num_method_tests {
         return $self->{'test'}{$name};
     }
 
-    $self->{'test'}{$name} = $count;
+    $self->{'test'}{$name}{'count'} = $count;
+    $self->{'test'}{$name}{'simple_name'} = $name;
 
     return $self;
 }
