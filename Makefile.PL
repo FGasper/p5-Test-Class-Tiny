@@ -17,7 +17,7 @@ WriteMakefile1(
         },
     },
 
-    NAME         => 'Test::Class:Tiny',
+    NAME         => 'Test::Class::Tiny',
     AUTHOR       => 'Felipe Gasper (FELIPE)',
     VERSION_FROM => 'lib/Test/Class/Tiny.pm',         # finds \$VERSION
     ABSTRACT_FROM => 'lib/Test/Class/Tiny.pm',

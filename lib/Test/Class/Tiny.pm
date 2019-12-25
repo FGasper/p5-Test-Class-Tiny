@@ -3,6 +3,9 @@ package Test::Class::Tiny;
 use strict;
 use warnings;
 
+our $VERSION;
+$VERSION = 0.01;
+
 =encoding utf-8
 
 =head1 NAME
