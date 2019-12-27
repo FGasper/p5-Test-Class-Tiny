@@ -100,11 +100,15 @@ to type.
 
 In most other respects this module attempts to imitate L<Test::Class>.
 
-=head2 Plans
+=head2 PLANS
 
-L<Test::Class> does a bit of “magic” that relieves you of the need to
-give an overall test plan. For the time being, Test::Class::Tiny offers
-no such convenience.
+The concept of a global “plan” (i.e., an expected number of assertions)
+isn’t all that sensible with xUnit because each test function has its
+own plan. So, ideally the total number of expected assertions for a given
+test module is just the sum of all test functions’ expected assertions.
+
+Thus, currently, C<runtests()> sets the L<Test2::Hub> object’s plan to
+C<no_plan> if the plan is undefined.
 
 =head1 TEST INHERITANCE
 
@@ -249,6 +253,8 @@ sub runtests {
             my $got_count;
 
             my $hub = $ctx->hub();
+
+            $hub->plan('NO PLAN') if !defined $hub->plan();
 
             my $filter_cr = sub {
                 my ($hub, $event) = @_;

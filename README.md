@@ -83,11 +83,15 @@ to type.
 
 In most other respects this module attempts to imitate [Test::Class](https://metacpan.org/pod/Test::Class).
 
-## Plans
+## PLANS
 
-[Test::Class](https://metacpan.org/pod/Test::Class) does a bit of “magic” that relieves you of the need to
-give an overall test plan. For the time being, Test::Class::Tiny offers
-no such convenience.
+The concept of a global “plan” (i.e., an expected number of assertions)
+isn’t all that sensible with xUnit because each test function has its
+own plan. So, ideally the total number of expected assertions for a given
+test module is just the sum of all test functions’ expected assertions.
+
+Thus, currently, `runtests()` sets the [Test2::Hub](https://metacpan.org/pod/Test2::Hub) object’s plan to
+`no_plan` if the plan is undefined.
 
 # TEST INHERITANCE
 
