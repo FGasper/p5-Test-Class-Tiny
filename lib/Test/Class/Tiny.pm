@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 our $VERSION;
-$VERSION = '0.02_01';
+$VERSION = '0.02_02';
 
 =encoding utf-8
 
@@ -24,7 +24,7 @@ Test::Class::Tiny - xUnit in Perl, simplified
         # Runs at the start of the test run.
     }
 
-    sub T_setup_something {
+    sub something_T_setup {
         # Runs before each normal test function
     }
 
@@ -82,7 +82,9 @@ xUnit provides standard hooks for:
 
 To write functions that execute at these points in the workflow,
 name those functions with the prefixes C<T_startup_>, C<T_setup_>,
-C<T_teardown_>, or C<T_shutdown_>.
+C<T_teardown_>, or C<T_shutdown_>. B<Alternatively>, name such functions
+with the I<suffixes> C<_T_startup>, C<_T_setup>, C<_T_teardown>, or
+C<_T_shutdown>.
 
 To write a test function—i.e., a function that actually runs some
 assertions—prefix the function name with C<T>, the number of test assertions
@@ -90,8 +92,11 @@ in the function, then an underscore. For example, a function that contains
 9 assertions might be named C<T9_check_validation()>. If that function
 doesn’t run exactly 9 assertions, a test failure is produced.
 
-(To forgo counting test assertions, use 0 as the test count, e.g.,
-C<T0_check_validation()>.)
+To forgo counting test assertions, use 0 as the test count, e.g.,
+C<T0_check_validation()>.
+
+You may alternatively use suffix-style naming for test functions well,
+e.g., C<check_validation_T9()>, C<check_validation_T0()>.
 
 The above convention is a significant departure from L<Test::Class>,
 which uses Perl subroutine attributes to indicate this information.
@@ -378,6 +383,10 @@ sub _analyze {
     if (!$self->{'_analyzed'}) {
         my @isa = @{ mro::get_linear_isa(ref $self) };
 
+        my $t_regexp = q<T(_setup|_teardown|_startup|_shutdown|[0-9]+)>;
+        my $prefix_regexp = qr<\A${t_regexp}_(.+)>;
+        my $suffix_regexp = qr<(.+)_$t_regexp\z>;
+
         for my $ns (@isa) {
             my $ptbl_hr = do {
                 no strict 'refs';
@@ -386,12 +395,22 @@ sub _analyze {
 
             for my $name (keys %$ptbl_hr) {
                 next if !$self->can($name);
-                next if $name !~ m<\AT(_setup|_teardown|_startup|_shutdown|[0-9]+)_(.+)>;
 
-                my $whatsit = $1;
-                my $simple_name = $2;
+                my ($whatsit, $simple_name);
 
-                if ( $whatsit =~ s<\A_><>) {
+                if ($name =~ $prefix_regexp) {
+                    $whatsit = $1;
+                    $simple_name = $2;
+                }
+                elsif ($name =~ $suffix_regexp) {
+                    $simple_name = $1;
+                    $whatsit = $2;
+                }
+                else {
+                    next;
+                }
+
+                if ( $whatsit =~ s<_><> ) {
                     $self->{$whatsit}{$name} = undef;
                 }
                 else {
@@ -413,7 +432,12 @@ sub _run_funcs {
     my ($self, $funcs_hr) = @_;
 
     for my $fn (sort keys %$funcs_hr) {
-        $funcs_hr->{$fn}->($self);
+        if ( $funcs_hr->{$fn} ) {
+            $funcs_hr->{$fn}->($self);
+        }
+        else {
+            $self->$fn();
+        }
     }
 
     return;
