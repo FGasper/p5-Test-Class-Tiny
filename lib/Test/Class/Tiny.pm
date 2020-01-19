@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 our $VERSION;
-$VERSION = '0.01';
+$VERSION = '0.02_01';
 
 =encoding utf-8
 
@@ -156,6 +156,52 @@ See F<t/> in the distribution for an example of this.
 
 =back
 
+=head1 COMMON PITFALLS
+
+Avoid the following:
+
+=over
+
+=item * Writing startup logic outside of the module class, e.g.:
+
+    if (!caller) {
+        my $mock = Test::MockModule->new('Some::Module');
+        $mock->redefine('somefunc', sub { .. } );
+
+        __PACKAGE__->runtests();
+    }
+
+The above works I<only> if the test module runs in its own process; if you try
+to run this module with anything else it’ll fail because C<caller()> will be
+truthy, which will prevent the mocking from being set up, which your test
+probably depends on.
+
+Instead of the above, write a wrapper around C<runtests()>, thus:
+
+    sub runtests {
+        my $self = shift;
+
+        my $mock = Test::MockModule->new('Some::Module');
+        $mock->redefine('somefunc', sub { .. } );
+
+        $self->SUPER::runtests();
+    }
+
+This ensures your test module will always run with the intended mocking.
+
+=item * REDUX: Writing startup logic outside of the module class, e.g.:
+
+    my $mock = Test::MockModule->new('Some::Module');
+    $mock->redefine('somefunc', sub { .. } );
+
+    __PACKAGE__->runtests() if !caller;
+
+This is even worse than before because the mock will be global, which
+will quietly apply it where we don’t intend. This produces
+action-at-a-distance bugs, which can be notoriously hard to find.
+
+=back
+
 =head1 SEE ALSO
 
 Besides L<Test::Class>, you might also look at the following:
@@ -185,6 +231,8 @@ This code is licensed under the same license as Perl itself.
 use mro ();
 
 use Test2::API ();
+
+our ($a, $b);
 
 #----------------------------------------------------------------------
 
@@ -272,7 +320,12 @@ sub runtests {
 
             $hub->filter($filter_cr);
 
-            for my $fn (sort keys %$tests_hr) {
+            my @sorted_fns = sort {
+                ( $tests_hr->{$a}{'simple_name'} cmp $tests_hr->{$b}{'simple_name'} )
+                || ( $a cmp $b )
+            } keys %$tests_hr;
+
+            for my $fn (@sorted_fns) {
                 $filter_fn = $fn;
 
                 if (my $ptn = $ENV{'TEST_METHOD'}) {
