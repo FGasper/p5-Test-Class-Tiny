@@ -14,7 +14,7 @@ Test::Class::Tiny - xUnit in Perl, simplified
         # Runs at the start of the test run.
     }
 
-    sub T_setup_something {
+    sub something_T_setup {
         # Runs before each normal test function
     }
 
@@ -65,7 +65,9 @@ xUnit provides standard hooks for:
 
 To write functions that execute at these points in the workflow,
 name those functions with the prefixes `T_startup_`, `T_setup_`,
-`T_teardown_`, or `T_shutdown_`.
+`T_teardown_`, or `T_shutdown_`. **Alternatively**, name such functions
+with the _suffixes_ `_T_startup`, `_T_setup`, `_T_teardown`, or
+`_T_shutdown`.
 
 To write a test function—i.e., a function that actually runs some
 assertions—prefix the function name with `T`, the number of test assertions
@@ -73,8 +75,11 @@ in the function, then an underscore. For example, a function that contains
 9 assertions might be named `T9_check_validation()`. If that function
 doesn’t run exactly 9 assertions, a test failure is produced.
 
-(To forgo counting test assertions, use 0 as the test count, e.g.,
-`T0_check_validation()`.)
+To forgo counting test assertions, use 0 as the test count, e.g.,
+`T0_check_validation()`.
+
+You may alternatively use suffix-style naming for test functions well,
+e.g., `check_validation_T9()`, `check_validation_T0()`.
 
 The above convention is a significant departure from [Test::Class](https://metacpan.org/pod/Test::Class),
 which uses Perl subroutine attributes to indicate this information.
