@@ -285,7 +285,9 @@ sub runtests {
         $self = $obj;
     }
 
-    my $ctx = Test2::API::context();
+    my $big_ctx = Test2::API::context();
+    my $ctx = $big_ctx->snapshot();
+    $big_ctx->release();
 
     if (my $reason = $self->SKIP_CLASS()) {
         $ctx->plan(1);
@@ -371,8 +373,6 @@ sub runtests {
             $self->_run_funcs($shutdown_hr);
         }
     }
-
-    $ctx->release();
 
     return;
 }
