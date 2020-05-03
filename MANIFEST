@@ -10,3 +10,4 @@ t/basic.t
 t/dynamic_count.t
 t/inheritance.t
 t/order.t
+t/suffix_naming.t

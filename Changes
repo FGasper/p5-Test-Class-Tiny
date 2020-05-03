@@ -1,6 +1,6 @@
 Revision history for Perl module Test::Class::Tiny
 
-0.03
+0.03 Sun 3 May 2020
 - Make assertions show the line number accurately. (Previously they showed
   the line number where runtests() was called.)
 
