@@ -45,16 +45,17 @@ could break whenever this module is updated.
 
 # DESCRIPTION
 
-[Test::Class](https://metacpan.org/pod/Test::Class) has served Perl’s xUnit needs for a long time
-but is incompatible with the [Test2](https://metacpan.org/pod/Test2) framework. This module allows for
-a similar workflow but in a way that works with both [Test2](https://metacpan.org/pod/Test2) and the older,
-[Test::Builder](https://metacpan.org/pod/Test::Builder)-based modules.
+[Test::Class](https://metacpan.org/pod/Test%3A%3AClass) is the de facto standard xUnit implementation in Perl.
+It’s got quite a long dependency chain, though, so it’s awkward to use in
+CPAN projects.
+
+This module offers a lighter alternative with a similar syntax.
 
 # HOW (AND WHY) TO USE THIS MODULE
 
-xUnit encourages well-designed tests by encouraging organization of test
-logic into independent chunks of test logic rather than a single monolithic
-block of code.
+xUnit encourages you to organize test logic into independent chunks
+rather than a single, monolithic script. This benefits your tests in the
+same way it helps your production code: reusability, modularity, etc.
 
 xUnit provides standard hooks for:
 
@@ -81,12 +82,12 @@ To forgo counting test assertions, use 0 as the test count, e.g.,
 You may alternatively use suffix-style naming for test functions well,
 e.g., `check_validation_T9()`, `check_validation_T0()`.
 
-The above convention is a significant departure from [Test::Class](https://metacpan.org/pod/Test::Class),
+The above convention is a significant departure from [Test::Class](https://metacpan.org/pod/Test%3A%3AClass),
 which uses Perl subroutine attributes to indicate this information.
 Using method names is dramatically simpler to implement and also easier
 to type.
 
-In most other respects this module attempts to imitate [Test::Class](https://metacpan.org/pod/Test::Class).
+In most other respects this module attempts to imitate [Test::Class](https://metacpan.org/pod/Test%3A%3AClass).
 
 ## PLANS
 
@@ -95,19 +96,17 @@ isn’t all that sensible with xUnit because each test function has its
 own plan. So, ideally the total number of expected assertions for a given
 test module is just the sum of all test functions’ expected assertions.
 
-Thus, currently, `runtests()` sets the [Test2::Hub](https://metacpan.org/pod/Test2::Hub) object’s plan to
+Thus, currently, `runtests()` sets the [Test2::Hub](https://metacpan.org/pod/Test2%3A%3AHub) object’s plan to
 `no_plan` if the plan is undefined.
 
 # TEST INHERITANCE
 
-Like [Test::Class](https://metacpan.org/pod/Test::Class), this module seamlessly integrates inherited methods.
+Like [Test::Class](https://metacpan.org/pod/Test%3A%3AClass), this module seamlessly integrates inherited methods.
 To have one test module inherit another module’s tests, just make that
 first module a subclass of the latter.
 
 **CAVEAT EMPTOR:** Inheritance in tests, while occasionally useful, can also
-make for difficult maintenance over time if overused. Where I’ve found it
-most useful is cases like [Promise::ES6](https://metacpan.org/pod/Promise::ES6), where each test needs to run with
-each backend implementation.
+complicate maintenance over time if overused.
 
 # RUNNING YOUR TEST
 
@@ -121,11 +120,11 @@ Your test will thus execute as a “modulino”.
 
 # SPECIAL FEATURES
 
-- As in [Test::Class](https://metacpan.org/pod/Test::Class), a `SKIP_CLASS()` method may be defined. If this
+- As in [Test::Class](https://metacpan.org/pod/Test%3A%3AClass), a `SKIP_CLASS()` method may be defined. If this
 method returns truthy, then the class’s tests are skipped, and that truthy
 return is given as the reason for the skip.
-- The `TEST_METHOD` environment variable is honored as in [Test::Class](https://metacpan.org/pod/Test::Class).
-- [Test::Class](https://metacpan.org/pod/Test::Class)’s `fail_if_returned_early()` method is NOT recognized
+- The `TEST_METHOD` environment variable is honored as in [Test::Class](https://metacpan.org/pod/Test%3A%3AClass).
+- [Test::Class](https://metacpan.org/pod/Test%3A%3AClass)’s `fail_if_returned_early()` method is NOT recognized
 here because an early return will already trigger a failure.
 - Within a test method, `num_tests()` may be called to retrieve the
 number of expected test assertions.
@@ -180,11 +179,11 @@ Avoid the following:
 
 # SEE ALSO
 
-Besides [Test::Class](https://metacpan.org/pod/Test::Class), you might also look at the following:
+Besides [Test::Class](https://metacpan.org/pod/Test%3A%3AClass), you might also look at the following:
 
-- [Test2::Tools::xUnit](https://metacpan.org/pod/Test2::Tools::xUnit) also implements xUnit for [Test2](https://metacpan.org/pod/Test2) but doesn’t
+- [Test2::Tools::xUnit](https://metacpan.org/pod/Test2%3A%3ATools%3A%3AxUnit) also implements xUnit for [Test2](https://metacpan.org/pod/Test2) but doesn’t
 allow inheritance.
-- [Test::Class::Moose](https://metacpan.org/pod/Test::Class::Moose) works with [Test2](https://metacpan.org/pod/Test2), but the [Moose](https://metacpan.org/pod/Moose) requirement
+- [Test::Class::Moose](https://metacpan.org/pod/Test%3A%3AClass%3A%3AMoose) works with [Test2](https://metacpan.org/pod/Test2), but the [Moose](https://metacpan.org/pod/Moose) requirement
 makes use in CPAN modules problematic.
 
 # AUTHOR

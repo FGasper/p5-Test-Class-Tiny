@@ -1,5 +1,5 @@
+.github/workflows/all.yml
 .gitignore
-.travis.yml
 Changes
 LICENSE
 MANIFEST

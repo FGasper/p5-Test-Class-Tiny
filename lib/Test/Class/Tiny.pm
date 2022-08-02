@@ -55,16 +55,17 @@ could break whenever this module is updated.
 
 =head1 DESCRIPTION
 
-L<Test::Class> has served Perl’s xUnit needs for a long time
-but is incompatible with the L<Test2> framework. This module allows for
-a similar workflow but in a way that works with both L<Test2> and the older,
-L<Test::Builder>-based modules.
+L<Test::Class> is the de facto standard xUnit implementation in Perl.
+It’s got quite a long dependency chain, though, so it’s awkward to use in
+CPAN projects.
+
+This module offers a lighter alternative with a similar syntax.
 
 =head1 HOW (AND WHY) TO USE THIS MODULE
 
-xUnit encourages well-designed tests by encouraging organization of test
-logic into independent chunks of test logic rather than a single monolithic
-block of code.
+xUnit encourages you to organize test logic into independent chunks
+rather than a single, monolithic script. This benefits your tests in the
+same way it helps your production code: reusability, modularity, etc.
 
 xUnit provides standard hooks for:
 
@@ -122,9 +123,7 @@ To have one test module inherit another module’s tests, just make that
 first module a subclass of the latter.
 
 B<CAVEAT EMPTOR:> Inheritance in tests, while occasionally useful, can also
-make for difficult maintenance over time if overused. Where I’ve found it
-most useful is cases like L<Promise::ES6>, where each test needs to run with
-each backend implementation.
+complicate maintenance over time if overused.
 
 =head1 RUNNING YOUR TEST
 
